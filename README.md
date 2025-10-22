@@ -169,7 +169,7 @@ PORT=8080 LOG_LEVEL=debug python start.py
 | GET | /api/v1/latest | Latest releases | page |
 | GET | /api/v1/ongoing | Ongoing series | page |
 | GET | /api/v1/completed | Completed series | page |
-| GET /api/v1/genres/{slug} | Donghua by genre | slug, page |
+| GET | /api/v1/genres/{slug} | Donghua by genre | slug, page |
 | GET | /api/v1/detail/{slug} | Detailed info | slug |
 | GET | /api/v1/episodes/{slug} | All episodes list | slug |
 | GET | /api/v1/stream/{slug} | Streaming data | episode, serverId |
