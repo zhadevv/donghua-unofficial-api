@@ -429,9 +429,12 @@ class DonghubParser:
         result["title"] = self.extract_text(container, ".entry-title")
         result["alter_title"] = self.extract_text(container, ".alter")
         result["bookmark_count"] = self.extract_text(container, ".bmc")
-        result["synopsis"] = self.extract_text(container, ".desc")
-        result["short_description"] = self.extract_text(container, ".mindesc")
         
+        synopsis_container = soup.select_one(".bixbox.synp .entry-content")
+        if synopsis_container:
+            result["synopsis"] = synopsis_container.get_text(strip=True)
+        else:
+            result["synopsis"] = ""
         
         info_data = {}
         
@@ -469,14 +472,14 @@ class DonghubParser:
         first_ep = container.select_one(".inepcx:first-child")
         if first_ep:
             episode_nav["first_episode"] = {
-                "number": self.extract_text(first_ep, ".epcurfirst"),
+                "number": self.extract_text(first_ep, ".epcur.epcurfirst"),
                 "url": self.extract_attribute(first_ep, "a", "href")
             }
         
         new_ep = container.select_one(".inepcx:last-child")
         if new_ep:
             episode_nav["new_episode"] = {
-                "number": self.extract_text(new_ep, ".epcurlast"),
+                "number": self.extract_text(new_ep, ".epcur.epcurlast"),
                 "url": self.extract_attribute(new_ep, "a", "href")
             }
         
@@ -505,7 +508,6 @@ class DonghubParser:
         return result
     
     async def scrape_stream(self, slug: str, episode: Optional[int] = None, server_id: Optional[int] = None) -> Dict[str, Any]:
-      
         if episode:
             if not slug.endswith('-subtitle-indonesia'):
                 slug = f"{slug}-episode-{episode}-subtitle-indonesia"
@@ -533,24 +535,28 @@ class DonghubParser:
                                 return {"embed_url": embed_data}
             
             return {"embed_url": ""}
-            
         else:
             soup = await self.get_soup(url)
             
             result = {}
             
             result["title"] = self.extract_text(soup, ".entry-title")
+            
             episode_meta = soup.select_one("meta[itemprop='episodeNumber']")
             if episode_meta:
                 result["episode_number"] = episode_meta.get("content")
-                
             else:
                 title = result["title"] or ""
                 episode_match = re.search(r'Episode\s*(\d+)', title, re.IGNORECASE)
                 result["episode_number"] = episode_match.group(1) if episode_match else ""
             
             result["thumbnail"] = self.extract_attribute(soup, ".thumb img", "src")
-            result["current_embed"] = self.extract_attribute(soup, "#pembed iframe", "src")
+            
+            current_embed = soup.select_one("#pembed iframe")
+            if current_embed:
+                result["current_embed"] = current_embed.get("src")
+            else:
+                result["current_embed"] = ""
             
             servers_container = soup.select_one("select.mirror")
             if servers_container:
@@ -568,14 +574,20 @@ class DonghubParser:
             prev_ep = soup.select_one(".naveps .nvs a[rel='prev']")
             if prev_ep:
                 navigation["prev_episode"] = prev_ep.get("href")
+            else:
+                navigation["prev_episode"] = ""
             
             next_ep = soup.select_one(".naveps .nvs a[rel='next']")
             if next_ep:
                 navigation["next_episode"] = next_ep.get("href")
+            else:
+                navigation["next_episode"] = ""
             
             all_eps = soup.select_one(".naveps .nvsc a")
             if all_eps:
                 navigation["all_episodes"] = all_eps.get("href")
+            else:
+                navigation["all_episodes"] = ""
             
             result["navigation"] = navigation
             
@@ -591,9 +603,9 @@ class DonghubParser:
                     })
             else:
                 result["episode_list"] = []
-            
+                
             series_info = {}
-            series_info["title"] = self.extract_text(soup, ".infolimit h2")
+            series_info["title"] = self.extract_text(soup, ".infolimit h2") or result.get("title", "")
             
             info_elements = soup.select(".spe span")
             for element in info_elements:
@@ -611,47 +623,51 @@ class DonghubParser:
             else:
                 series_info["genres"] = []
             
-            series_info["synopsis"] = self.extract_text(soup, ".desc")
+            stream_synopsis = soup.select_one(".bixbox.synp .entry-content")
+            if stream_synopsis:
+                series_info["synopsis"] = stream_synopsis.get_text(strip=True)
+            else:
+                series_info["synopsis"] = ""
             
+            rating_element = soup.select_one(".rating strong")
+            series_info["rating"] = rating_element.get_text(strip=True) if rating_element else ""
             
             result["series_info"] = series_info
             
             return result
     
     async def scrape_episodes(self, slug: str) -> Dict[str, Any]:
-        detail_data = await self.scrape_detail(slug)
+        url = f"{self.base_url}/{slug}/"
+        soup = await self.get_soup(url)
         
         result = {"episodes": []}
         
-        if "episode_nav" in detail_data:
-            first_ep = detail_data["episode_nav"].get("first_episode", {})
-            new_ep = detail_data["episode_nav"].get("new_episode", {})
+        first_ep_element = soup.select_one(".inepcx:first-child")
+        new_ep_element = soup.select_one(".inepcx:last-child")
+        
+        if first_ep_element and new_ep_element:
+            first_ep_number_text = self.extract_text(first_ep_element, ".epcurfirst")
+            new_ep_number_text = self.extract_text(new_ep_element, ".epcurlast")
             
-            first_num = 1
-            new_num = 1
-            
-            if first_ep.get("number"):
-                first_match = re.search(r'(\d+)', first_ep.get("number", ""))
-                if first_match:
-                    first_num = int(first_match.group(1))
-            
-            if new_ep.get("number"):
-                new_match = re.search(r'(\d+)', new_ep.get("number", ""))
-                if new_match:
-                    new_num = int(new_match.group(1))
-            
-            base_slug = slug.rstrip('/')
-            
-            for ep_num in range(first_num, new_num + 1):
-                episode_slug = f"{base_slug}-episode-{ep_num}-subtitle-indonesia"
-                episode_url = f"{self.base_url}/{episode_slug}/"
+            try:
+                first_num = int(''.join(filter(str.isdigit, first_ep_number_text)) or 1)
+                new_num = int(''.join(filter(str.isdigit, new_ep_number_text)) or 1)
                 
-                result["episodes"].append({
-                    "episode_number": ep_num,
-                    "slug": episode_slug,
-                    "url": episode_url,
-                    "donghub_url": episode_url
-                })
+                base_slug = slug.rstrip('/')
+                
+                for ep_num in range(first_num, new_num + 1):
+                    episode_slug = f"{base_slug}-episode-{ep_num}-subtitle-indonesia"
+                    episode_url = f"{self.base_url}/{episode_slug}/"
+                    
+                    result["episodes"].append({
+                        "episode_number": ep_num,
+                        "slug": episode_slug,
+                        "url": episode_url,
+                        "donghub_url": episode_url
+                    })
+                        
+            except ValueError:
+                pass
         
         return result
     
