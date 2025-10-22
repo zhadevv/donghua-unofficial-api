@@ -11,5 +11,5 @@ setup(
       "beautifulsoup4>=4.14.2",
       "python-multipart>=0.0.20"
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.9",
 )
