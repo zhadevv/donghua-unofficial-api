@@ -563,17 +563,9 @@ GET /api/v1/search?s=battle+through+the+heavens&page=1
                             <div class="param-title">Parameters</div>
                             <div class="param-item">slug (path) - Donghua slug</div>
                             <div class="param-item">episode (query) - Episode number, defaults to latest</div>
-                            <div class="param-item">serverId (query) - Server ID (1=DailyMotion, 2=OKRU)</div>
                         </div>
                         
-                        <div class="example-title">With serverId (returns only embed URL):</div>
-                        <div class="example-code">
-{
-  "embed_url": "https://dailymotion.com/embed/video/xxx"
-}
-                        </div>
-                        
-                        <div class="example-title">Without serverId (full response):</div>
+                        <div class="example-title">Example:</div>
                         <div class="example-code">
 {
   "servers": [...],
