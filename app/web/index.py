@@ -9,157 +9,348 @@ async def documentation():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Donghua Unofficial API - Documentation</title>
+        <title>Donghua API • Unofficial REST API</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-            body { 
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            :root {
+                --primary: #6366f1;
+                --primary-dark: #4f46e5;
+                --success: #10b981;
+                --warning: #f59e0b;
+                --gray-50: #f9fafb;
+                --gray-100: #f3f4f6;
+                --gray-200: #e5e7eb;
+                --gray-600: #4b5563;
+                --gray-800: #1f2937;
+                --gray-900: #111827;
+            }
+            
+            * {
                 margin: 0;
                 padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', sans-serif;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
-            }
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
-            }
-            .header {
-                background: white;
-                padding: 40px;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                margin-bottom: 30px;
-                text-align: center;
-            }
-            .header h1 {
-                color: #333;
-                margin: 0;
-                font-size: 2.5em;
-            }
-            .header p {
-                color: #666;
-                font-size: 1.2em;
-                margin: 10px 0 0 0;
-            }
-            .endpoints-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-            .endpoint-card {
-                background: white;
-                padding: 25px;
-                border-radius: 12px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                border-left: 5px solid #667eea;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-            .endpoint-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            }
-            .method {
-                background: #667eea;
-                color: white;
-                padding: 5px 12px;
-                border-radius: 5px;
-                font-weight: bold;
-                font-size: 0.9em;
-                display: inline-block;
-                margin-right: 10px;
-            }
-            .url {
-                font-family: 'Courier New', monospace;
-                background: #f8f9fa;
-                padding: 8px 12px;
-                border-radius: 5px;
-                border: 1px solid #e9ecef;
-                color: #e83e8c;
-                font-weight: bold;
-            }
-            .description {
-                color: #555;
-                margin: 15px 0;
+                color: var(--gray-800);
                 line-height: 1.6;
             }
-            .parameters {
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 8px;
-                margin: 15px 0;
+            
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 2rem 1rem;
             }
-            .param-title {
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 8px;
-            }
-            .param-item {
-                margin: 5px 0;
-                font-family: 'Courier New', monospace;
-                color: #666;
-            }
-            .response-example {
-                background: #2d3748;
-                color: #e2e8f0;
-                padding: 15px;
-                border-radius: 8px;
-                margin: 15px 0;
-                font-family: 'Courier New', monospace;
-                font-size: 0.9em;
-                overflow-x: auto;
-            }
-            .footer {
+            
+            /* Header Styles */
+            .header {
                 text-align: center;
-                color: white;
-                padding: 30px;
-                margin-top: 40px;
+                margin-bottom: 3rem;
             }
-            .badge {
-                background: #48bb78;
-                color: white;
-                padding: 3px 8px;
-                border-radius: 12px;
-                font-size: 0.8em;
-                margin-left: 10px;
+            
+            .logo {
+                font-size: 3rem;
+                margin-bottom: 1rem;
             }
-            .test-badge {
-                background: #ed8936;
+            
+            .title {
+                font-size: 2.5rem;
+                font-weight: 700;
                 color: white;
-                padding: 3px 8px;
-                border-radius: 12px;
-                font-size: 0.8em;
-                margin-left: 10px;
+                margin-bottom: 0.5rem;
+                letter-spacing: -0.025em;
             }
+            
+            .subtitle {
+                font-size: 1.25rem;
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 400;
+                margin-bottom: 2rem;
+            }
+            
+            /* Quick Links */
             .quick-links {
                 display: flex;
+                gap: 1rem;
                 justify-content: center;
-                gap: 15px;
-                margin: 20px 0;
+                flex-wrap: wrap;
+                margin-bottom: 2rem;
             }
+            
             .quick-link {
-                background: white;
-                color: #667eea;
-                padding: 10px 20px;
-                border-radius: 25px;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border-radius: 50px;
                 text-decoration: none;
-                font-weight: bold;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .quick-link:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateY(-2px);
+            }
+            
+            /* Endpoints Container */
+            .endpoints-container {
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            
+            /* Details & Summary Styles */
+            details {
+                background: var(--gray-50);
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                border: 1px solid var(--gray-200);
                 transition: all 0.3s ease;
             }
-            .quick-link:hover {
-                background: #667eea;
+            
+            details:hover {
+                border-color: var(--primary);
+            }
+            
+            details[open] {
+                background: white;
+                border-color: var(--primary);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            
+            summary {
+                padding: 1.25rem;
+                cursor: pointer;
+                font-weight: 600;
+                color: var(--gray-900);
+                list-style: none;
+                display: flex;
+                align-items: center;
+                justify-content: between;
+                transition: all 0.3s ease;
+            }
+            
+            summary::-webkit-details-marker {
+                display: none;
+            }
+            
+            summary::after {
+                content: '▶';
+                font-size: 0.8rem;
+                color: var(--gray-400);
+                transition: transform 0.3s ease;
+                margin-left: auto;
+            }
+            
+            details[open] summary::after {
+                transform: rotate(90deg);
+                color: var(--primary);
+            }
+            
+            summary:hover {
+                color: var(--primary);
+            }
+            
+            .endpoint-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .method {
+                background: var(--primary);
                 color: white;
-                transform: translateY(-2px);
+                padding: 0.25rem 0.75rem;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                letter-spacing: 0.05em;
+            }
+            
+            .url {
+                font-family: 'Monaco', 'Consolas', monospace;
+                font-size: 0.9rem;
+                color: var(--gray-600);
+                font-weight: 500;
+            }
+            
+            .badge {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem;
+                border-radius: 20px;
+                font-weight: 600;
+            }
+            
+            .badge.working {
+                background: var(--success);
+                color: white;
+            }
+            
+            .badge.testing {
+                background: var(--warning);
+                color: white;
+            }
+            
+            /* Content Styles */
+            .endpoint-content {
+                padding: 0 1.25rem 1.25rem 1.25rem;
+                border-top: 1px solid var(--gray-200);
+                margin-top: 1rem;
+            }
+            
+            .description {
+                color: var(--gray-600);
+                margin-bottom: 1.5rem;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            
+            .params {
+                background: var(--gray-50);
+                padding: 1.25rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+            }
+            
+            .param-title {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: var(--gray-600);
+                margin-bottom: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            
+            .param-item {
+                font-family: 'Monaco', 'Consolas', monospace;
+                font-size: 0.85rem;
+                color: var(--gray-600);
+                margin: 0.5rem 0;
+                padding-left: 1rem;
+            }
+            
+            .example-code {
+                background: var(--gray-800);
+                color: var(--gray-200);
+                padding: 1.25rem;
+                border-radius: 8px;
+                font-family: 'Monaco', 'Consolas', monospace;
+                font-size: 0.85rem;
+                line-height: 1.5;
+                overflow-x: auto;
+                margin-top: 1rem;
+            }
+            
+            .example-title {
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: var(--gray-700);
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Footer */
+            .footer {
+                text-align: center;
+                margin-top: 3rem;
+                padding: 2rem;
+                color: white;
+            }
+            
+            .footer-links {
+                display: flex;
+                justify-content: center;
+                gap: 2rem;
+                margin-top: 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .footer-link {
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: color 0.3s ease;
+                font-size: 0.9rem;
+            }
+            
+            .footer-link:hover {
+                color: white;
+            }
+            
+            /* Animation */
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            details[open] .endpoint-content {
+                animation: slideDown 0.3s ease-out;
+            }
+            
+            /* Responsive */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 1rem;
+                }
+                
+                .endpoints-container {
+                    padding: 1.5rem;
+                }
+                
+                .endpoint-header {
+                    gap: 0.5rem;
+                }
+                
+                .url {
+                    font-size: 0.8rem;
+                }
+                
+                .quick-links {
+                    gap: 0.5rem;
+                }
+                
+                .quick-link {
+                    padding: 0.6rem 1rem;
+                    font-size: 0.9rem;
+                }
+            }
+            
+            /* Section Header */
+            .section-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid var(--gray-200);
+            }
+            
+            .section-icon {
+                font-size: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--gray-900);
             }
         </style>
     </head>
     <body>
         <div class="container">
+            <!-- Header -->
             <div class="header">
-                <h1>🎌 Donghua Unofficial API</h1>
-                <p>Unofficial REST API for Donghub.vip - Chinese Animation Streaming Platform</p>
+                <div class="logo">🎌</div>
+                <h1 class="title">Donghua API</h1>
+                <p class="subtitle">Unofficial REST API for Chinese Animation Streaming</p>
+                
                 <div class="quick-links">
                     <a href="/docs" class="quick-link">📚 Interactive Docs</a>
                     <a href="/redoc" class="quick-link">📖 ReDoc</a>
@@ -168,309 +359,370 @@ async def documentation():
                 </div>
             </div>
 
-            <div class="endpoints-grid">
-                <!-- Home -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/home?page=1</span>
-                        <span class="badge">WORKING</span>
-                    </div>
-                    <div class="description">
-                        Get homepage sections including popular today, latest releases, recommendations, popular series, new movies, and genres.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Query Parameters:</div>
-                        <div class="param-item">page (optional) - Page number, default: 1</div>
-                    </div>
+            <!-- Endpoints Container -->
+            <div class="endpoints-container">
+                <!-- Content Endpoints -->
+                <div class="section-header">
+                    <span class="section-icon">🎬</span>
+                    <h2 class="section-title">Content Endpoints</h2>
                 </div>
+
+                <!-- Home -->
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/home?page=1</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get homepage sections including popular today, latest releases, recommendations, popular series, new movies, and genres.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Query Parameters</div>
+                            <div class="param-item">page (optional) - Page number, default: 1</div>
+                        </div>
+                        
+                        <div class="example-title">Example Response:</div>
+                        <div class="example-code">
+{
+  "status": 200,
+  "success": true,
+  "author": "zhadev",
+  "data": {
+    "popular_today": [...],
+    "latest_releases": [...],
+    "recommendations": [...]
+  }
+}
+                        </div>
+                    </div>
+                </details>
 
                 <!-- Search -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/search?s=query&page=1</span>
-                        <span class="badge">WORKING</span>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/search?s=query&page=1</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Search for donghua by query string with pagination support.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Query Parameters</div>
+                            <div class="param-item">s (required) - Search query</div>
+                            <div class="param-item">page (optional) - Page number, default: 1</div>
+                        </div>
+                        
+                        <div class="example-title">Example Usage:</div>
+                        <div class="example-code">
+GET /api/v1/search?s=battle+through+the+heavens&page=1
+                        </div>
                     </div>
-                    <div class="description">
-                        Search for donghua by query string with pagination support.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Query Parameters:</div>
-                        <div class="param-item">s (required) - Search query</div>
-                        <div class="param-item">page (optional) - Page number, default: 1</div>
-                    </div>
-                </div>
+                </details>
 
                 <!-- Schedule -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/schedule</span>
-                        <span class="badge">WORKING</span>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/schedule</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get weekly release schedule organized by days (Monday to Sunday) with countdown timers.</p>
+                        
+                        <div class="example-title">Response Includes:</div>
+                        <div class="example-code">
+{
+  "monday": [...],
+  "tuesday": [...],
+  "wednesday": [...],
+  // ... all days
+}
+                        </div>
                     </div>
-                    <div class="description">
-                        Get weekly release schedule organized by days (Monday to Sunday) with countdown timers.
-                    </div>
-                </div>
+                </details>
 
                 <!-- Popular -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/popular?page=1</span>
-                        <span class="badge">WORKING</span>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/popular?page=1</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get popular donghua list ordered by popularity with pagination.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Query Parameters</div>
+                            <div class="param-item">page (optional) - Page number, default: 1</div>
+                        </div>
                     </div>
-                    <div class="description">
-                        Get popular donghua list ordered by popularity with pagination.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Query Parameters:</div>
-                        <div class="param-item">page (optional) - Page number, default: 1</div>
-                    </div>
-                </div>
+                </details>
 
                 <!-- Latest -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/latest?page=1</span>
-                        <span class="badge">WORKING</span>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/latest?page=1</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get latest released donghua ordered by release date.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Query Parameters</div>
+                            <div class="param-item">page (optional) - Page number, default: 1</div>
+                        </div>
                     </div>
-                    <div class="description">
-                        Get latest released donghua ordered by release date.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Query Parameters:</div>
-                        <div class="param-item">page (optional) - Page number, default: 1</div>
-                    </div>
-                </div>
-
-                <!-- Ongoing -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/ongoing?page=1</span>
-                        <span class="badge">WORKING</span>
-                    </div>
-                    <div class="description">
-                        Get currently ongoing donghua series that are still airing.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Query Parameters:</div>
-                        <div class="param-item">page (optional) - Page number, default: 1</div>
-                    </div>
-                </div>
-
-                <!-- Completed -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/completed?page=1</span>
-                        <span class="badge">WORKING</span>
-                    </div>
-                    <div class="description">
-                        Get completed donghua series that have finished airing.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Query Parameters:</div>
-                        <div class="param-item">page (optional) - Page number, default: 1</div>
-                    </div>
-                </div>
-
-                <!-- Genres -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/genres/action?page=1</span>
-                        <span class="badge">WORKING</span>
-                    </div>
-                    <div class="description">
-                        Get donghua filtered by genre slug with pagination support.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Path & Query Parameters:</div>
-                        <div class="param-item">slug (path) - Genre slug (action, romance, comedy, etc.)</div>
-                        <div class="param-item">page (optional) - Page number, default: 1</div>
-                    </div>
-                </div>
+                </details>
 
                 <!-- Detail -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/detail/slug-name</span>
-                        <span class="badge">WORKING</span>
-                    </div>
-                    <div class="description">
-                        Get detailed information about a specific donghua including episodes, synopsis, ratings, and metadata.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Path Parameters:</div>
-                        <div class="param-item">slug (path) - Donghua slug from search/home results</div>
-                    </div>
-                    <div class="response-example">
-// Example: /api/v1/detail/battle-through-the-heavens<br>
-{<br>
-&nbsp;&nbsp;"status": 200,<br>
-&nbsp;&nbsp;"success": true,<br>
-&nbsp;&nbsp;"author": "zhadev",<br>
-&nbsp;&nbsp;"data": {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"title": "Battle Through The Heavens",<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"episodes": [...],<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"synopsis": "...",<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"rating": "9.2"<br>
-&nbsp;&nbsp;}<br>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/detail/slug-name</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get detailed information about a specific donghua including episodes, synopsis, ratings, and metadata.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Path Parameters</div>
+                            <div class="param-item">slug - Donghua slug from search/home results</div>
+                        </div>
+                        
+                        <div class="example-title">Example Response:</div>
+                        <div class="example-code">
+{
+  "status": 200,
+  "success": true,
+  "author": "zhadev", 
+  "data": {
+    "title": "Battle Through The Heavens",
+    "episodes": [...],
+    "synopsis": "In a land where no magic is present...",
+    "rating": "9.2",
+    "genres": ["Action", "Adventure", "Fantasy"]
+  }
 }
+                        </div>
                     </div>
+                </details>
+
+                <!-- Stream Endpoints -->
+                <div class="section-header" style="margin-top: 3rem;">
+                    <span class="section-icon">🎥</span>
+                    <h2 class="section-title">Streaming Endpoints</h2>
                 </div>
 
                 <!-- Episodes -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/episodes/slug-name</span>
-                        <span class="badge">WORKING</span>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/episodes/slug-name</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get all episodes from first to latest for a donghua series. Automatically generates episode list based on first and latest episode numbers.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Path Parameters</div>
+                            <div class="param-item">slug - Donghua slug</div>
+                        </div>
                     </div>
-                    <div class="description">
-                        Get all episodes from first to latest for a donghua series. Automatically generates episode list based on first and latest episode numbers.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Path Parameters:</div>
-                        <div class="param-item">slug (path) - Donghua slug</div>
-                    </div>
-                </div>
+                </details>
 
                 <!-- Stream -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/stream/slug-name?episode=1&serverId=1</span>
-                        <span class="badge">WORKING</span>
-                    </div>
-                    <div class="description">
-                        Get streaming data, embed URLs, servers list, and episode navigation for specific episodes.
-                    </div>
-                    <div class="parameters">
-                        <div class="param-title">Path & Query Parameters:</div>
-                        <div class="param-item">slug (path) - Donghua slug</div>
-                        <div class="param-item">episode (optional) - Episode number, defaults to latest</div>
-                        <div class="param-item">serverId (optional) - Server ID (1=DailyMotion, 2=OKRU), returns only embed URL</div>
-                    </div>
-                    <div class="response-example">
-// Without serverId: Full stream data<br>
-// With serverId: Only embed_url<br>
-{<br>
-&nbsp;&nbsp;"embed_url": "https://dailymotion.com/embed/video/xxx"<br>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/stream/slug-name?episode=1&serverId=1</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get streaming data, embed URLs, servers list, and episode navigation for specific episodes.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Parameters</div>
+                            <div class="param-item">slug (path) - Donghua slug</div>
+                            <div class="param-item">episode (query) - Episode number, defaults to latest</div>
+                            <div class="param-item">serverId (query) - Server ID (1=DailyMotion, 2=OKRU)</div>
+                        </div>
+                        
+                        <div class="example-title">With serverId (returns only embed URL):</div>
+                        <div class="example-code">
+{
+  "embed_url": "https://dailymotion.com/embed/video/xxx"
 }
+                        </div>
+                        
+                        <div class="example-title">Without serverId (full response):</div>
+                        <div class="example-code">
+{
+  "servers": [...],
+  "embed_url": "...", 
+  "current_episode": 1,
+  "next_episode": 2,
+  "prev_episode": null
+}
+                        </div>
                     </div>
+                </details>
+
+                <!-- Filter Endpoints -->
+                <div class="section-header" style="margin-top: 3rem;">
+                    <span class="section-icon">🔍</span>
+                    <h2 class="section-title">Filter Endpoints</h2>
                 </div>
 
                 <!-- Filters -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/filters</span>
-                        <span class="badge">WORKING</span>
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/filters</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get available filters for advanced search including genres, status, types, subtitle options, and order options.</p>
+                        
+                        <div class="example-title">Response Structure:</div>
+                        <div class="example-code">
+{
+  "genres": [...],
+  "status": [...], 
+  "types": [...],
+  "subtitles": [...],
+  "order": [...]
+}
+                        </div>
                     </div>
-                    <div class="description">
-                        Get available filters for advanced search including genres, status, types, subtitle options, and order options.
+                </details>
+
+                <!-- Genres -->
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/genres/action?page=1</span>
+                            <span class="badge working">WORKING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Get donghua filtered by genre slug with pagination support.</p>
+                        
+                        <div class="params">
+                            <div class="param-title">Parameters</div>
+                            <div class="param-item">slug (path) - Genre slug (action, romance, comedy, etc.)</div>
+                            <div class="param-item">page (query) - Page number, default: 1</div>
+                        </div>
                     </div>
-                </div>
+                </details>
 
                 <!-- Test Endpoints -->
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/test/all</span>
-                        <span class="test-badge">TESTING</span>
-                    </div>
-                    <div class="description">
-                        Comprehensive test suite to verify all API endpoints are working correctly.
-                    </div>
+                <div class="section-header" style="margin-top: 3rem;">
+                    <span class="section-icon">🧪</span>
+                    <h2 class="section-title">Test Endpoints</h2>
                 </div>
 
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/test/detail?slug=one-piece</span>
-                        <span class="test-badge">TESTING</span>
+                <!-- Test All -->
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/test/all</span>
+                            <span class="badge testing">TESTING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Comprehensive test suite to verify all API endpoints are working correctly.</p>
                     </div>
-                    <div class="description">
-                        Test detail endpoint with specific slug.
-                    </div>
-                </div>
+                </details>
 
-                <div class="endpoint-card">
-                    <div>
-                        <span class="method">GET</span>
-                        <span class="url">/api/v1/test/stream?slug=one-piece-episode-1</span>
-                        <span class="test-badge">TESTING</span>
+                <!-- Test Detail -->
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/test/detail?slug=one-piece</span>
+                            <span class="badge testing">TESTING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Test detail endpoint with specific slug.</p>
                     </div>
-                    <div class="description">
-                        Test stream endpoint with specific episode.
+                </details>
+
+                <!-- Test Stream -->
+                <details>
+                    <summary>
+                        <div class="endpoint-header">
+                            <span class="method">GET</span>
+                            <span class="url">/api/v1/test/stream?slug=one-piece-episode-1</span>
+                            <span class="badge testing">TESTING</span>
+                        </div>
+                    </summary>
+                    <div class="endpoint-content">
+                        <p class="description">Test stream endpoint with specific episode.</p>
                     </div>
-                </div>
-            </div>
+                </details>
 
-            <!-- Response Format -->
-            <div class="endpoint-card">
-                <h3>📋 Standard Response Format</h3>
-                <div class="response-example">
-{<br>
-&nbsp;&nbsp;"status": 200,<br>
-&nbsp;&nbsp;"success": true,<br>
-&nbsp;&nbsp;"author": "zhadev",<br>
-&nbsp;&nbsp;"data": {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;// Endpoint-specific data<br>
-&nbsp;&nbsp;}<br>
-}
-                </div>
-                <div class="description">
-                    All endpoints return consistent JSON response format with status codes, success flag, author attribution, and data payload.
-                </div>
-            </div>
-
-            <!-- Quick Examples -->
-            <div class="endpoint-card">
-                <h3>🚀 Quick Examples</h3>
-                <div class="description">
-                    <strong>Get popular donghua:</strong><br>
-                    <code>GET /api/v1/popular</code>
-                </div>
-                <div class="description">
-                    <strong>Search for specific donghua:</strong><br>
-                    <code>GET /api/v1/search?s=battle+through+the+heavens</code>
-                </div>
-                <div class="description">
-                    <strong>Get episode stream:</strong><br>
-                    <code>GET /api/v1/stream/renegade-immortal?episode=1&serverId=1</code>
-                </div>
-                <div class="description">
-                    <strong>Get all episodes:</strong><br>
-                    <code>GET /api/v1/episodes/battle-through-the-heavens</code>
-                </div>
             </div>
         </div>
 
+        <!-- Footer -->
         <div class="footer">
-            <p><strong>🎯 API Status: <span style="color: #48bb78;">FULLY OPERATIONAL</span></strong></p>
-            <p><strong>Author:</strong> zhadev | <strong>Version:</strong> 1.0.0 | <strong>Base URL:</strong> https://donghub.zhadev.my.id</p>
-            <p>⭐ Feed me stars at: <a href="https://github.com/zhadevv/donghua-unofficial-api" style="color: white;">GitHub Repository</a></p>
+            <p><strong>Donghua Unofficial API</strong> • Built with FastAPI • Deployed on Vercel</p>
+            <div class="footer-links">
+                <a href="https://github.com/zhadevv/donghua-unofficial-api" class="footer-link">⭐ GitHub</a>
+                <a href="https://pypi.org/project/donghua" class="footer-link">📦 PyPI Package</a>
+                <a href="/docs" class="footer-link">📚 Interactive Docs</a>
+                <a href="https://donghub.vip" class="footer-link">🌐 Original Site</a>
+            </div>
         </div>
 
         <script>
-            // Simple animation for badges
             document.addEventListener('DOMContentLoaded', function() {
-                const badges = document.querySelectorAll('.badge, .test-badge');
-                badges.forEach((badge, index) => {
-                    setTimeout(() => {
-                        badge.style.opacity = '0';
-                        badge.style.transition = 'opacity 0.3s ease';
-                        setTimeout(() => {
-                            badge.style.opacity = '1';
-                        }, 100);
-                    }, index * 200);
+            
+                const sections = document.querySelectorAll('details');
+                if (sections.length > 0) {
+                    sections[0].open = true; // Open first endpoint
+                }
+                
+                const allDetails = document.querySelectorAll('details');
+                allDetails.forEach(detail => {
+                    detail.addEventListener('toggle', function() {
+                        if (this.open) {
+                            // Optional: close other details in the same section
+                            const parentSection = this.closest('.section-header')?.nextElementSibling;
+                            if (parentSection) {
+                                const siblings = parentSection.querySelectorAll('details');
+                                siblings.forEach(sib => {
+                                    if (sib !== this && sib.open) {
+                                        sib.open = false;
+                                    }
+                                });
+                            }
+                        }
+                    });
                 });
             });
         </script>
