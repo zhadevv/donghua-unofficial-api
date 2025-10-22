@@ -188,7 +188,6 @@ class DonghubParser:
                             "slug": self.extract_attribute(item, "h4 a", "href").replace(self.base_url, "").strip("/"),
                             "thumbnail": self.extract_attribute(item, ".imgseries img", "src"),
                             "type": "Movie",
-                            "genres": self.extract_text(item, ".leftseries span:first-child"),
                             "date": self.extract_text(item, ".leftseries span:last-child"),
                             "donghub_url": self.extract_attribute(item, "h4 a", "href")
                         })
