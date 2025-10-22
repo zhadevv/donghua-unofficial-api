@@ -8,7 +8,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="donghua-api",
+    name="donghua-unofficial-api",
     version="1.0.0",
     author="zhadev",
     author_email="cp.zhadev@gmail.com",
