@@ -12,7 +12,7 @@ dependencies = [
     "beautifulsoup4>=4.14.2",
     "python-multipart>=0.0.20"
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.optional-dependencies]
 dev = [
