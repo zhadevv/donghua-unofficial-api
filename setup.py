@@ -8,8 +8,8 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="donghua-unofficial-api",
-    version=os.getenv("VERSION", "1.0.0"),
+    name="donghua-api",
+    version="1.0.0",
     author="zhadev",
     author_email="cp.zhadev@gmail.com",
     description="Unofficial API for Donghub.vip - Chinese Animation Streaming Platform",
@@ -30,7 +30,14 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Multimedia :: Video",
     ],
-    python_requires=">=3.8",
+    install_requires=[
+      "fastapi>=0.119.1",
+      "uvicorn>=0.38.0", 
+      "httpx>=0.28.1",
+      "beautifulsoup4>=4.14.2",
+      "python-multipart>=0.0.20"
+    ],
+    python_requires=">=3.9",
     install_requires=requirements,
     entry_points={
         "console_scripts": [
