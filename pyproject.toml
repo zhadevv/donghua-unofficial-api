@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "donghua-api"
+name="donghua-unofficial-api"
 version = "1.0.0"
-description = "Unofficial API for Donghub.vip"
+description = "Unofficial API for Donghub.vip - Chinese Animation Streaming Platform"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
