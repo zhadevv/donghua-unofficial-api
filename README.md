@@ -2,7 +2,7 @@
 
 <a href="https://ibb.co.com/Kxy1vMZF"><img src="https://i.ibb.co.com/hF8qzP5D/Proyek-Baru-58-958-F661.png" alt="Donghua Unofficial Api" border="0" width="600"></a>
 
-### **中国动画非官方API - Python Edition**
+### **Donghua Unofficial Api**
 
 <img src="https://img.shields.io/badge/python-%3E%3D3.8-blue" />&nbsp;
 <img src="https://img.shields.io/badge/framework-FastAPI-green" />
@@ -20,7 +20,7 @@
 
 ## 🚀 Introduction
 
-**Donghua Unofficial API - Python Edition** is a comprehensive Python library that provides programmatic access to Chinese animation (donghua) data. Built with **FastAPI** and **Async HTTPX**, it offers lightning-fast asynchronous scraping capabilities for donghua information, streaming links, release schedules, and much more.
+**Donghua Unofficial API** is a comprehensive Python library that provides programmatic access to Chinese animation (donghua) data. Built with **FastAPI** and **Async HTTPX**, it offers lightning-fast asynchronous scraping capabilities for donghua information, streaming links, release schedules, and much more.
 
 Perfect for developers building:
 - 📱 Donghua tracking apps
@@ -160,20 +160,21 @@ PORT=8080 LOG_LEVEL=debug python start.py
 
 <div align="center">
 
-Method Endpoint Description Parameters
-GET /api/v1/home Homepage data page (optional)
-GET /api/v1/search Search donghua s (required), page
-GET /api/v1/schedule Release schedule -
-GET /api/v1/popular Popular donghua page
-GET /api/v1/latest Latest releases page
-GET /api/v1/ongoing Ongoing series page
-GET /api/v1/completed Completed series page
-GET /api/v1/genres/{slug} Donghua by genre slug, page
-GET /api/v1/detail/{slug} Detailed info slug
-GET /api/v1/episodes/{slug} All episodes list slug
-GET /api/v1/stream/{slug} Streaming data episode, serverId
-GET /api/v1/filters Available filters -
-GET /api/v1/test/* Health check -
+| Method | Endpoint | Description | Parameters |
+|--------|----------|-------------|------------|
+| GET | /api/v1/home | Homepage data | page (optional) |
+| GET | /api/v1/search | Search donghua | s (required), page |
+| GET | /api/v1/schedule | Release schedule | - |
+| GET | /api/v1/popular | Popular donghua | page |
+| GET | /api/v1/latest | Latest releases | page |
+| GET | /api/v1/ongoing | Ongoing series | page |
+| GET | /api/v1/completed | Completed series | page |
+| GET /api/v1/genres/{slug} | Donghua by genre | slug, page |
+| GET | /api/v1/detail/{slug} | Detailed info | slug |
+| GET | /api/v1/episodes/{slug} | All episodes list | slug |
+| GET | /api/v1/stream/{slug} | Streaming data | episode, serverId |
+| GET | /api/v1/filters | Available filters | - |
+| GET | /api/v1/test/* | Health check | - |
 
 </div>
 
@@ -189,7 +190,7 @@ async def search_donghua():
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "http://localhost:8000/api/v1/search", 
-            params={"s": "斗破苍穹"}
+            params={"s": "renegade"}
         )
         data = response.json()
         print(data["data"]["results"])
@@ -377,9 +378,9 @@ We love contributions! Here's how to help:
 
 Once the server is running, visit:
 
-· Interactive Swagger UI: http://localhost:8000/docs
-· ReDoc Documentation: http://localhost:8000/redoc
-· Web Documentation: http://localhost:8000
+· Interactive Swagger UI: https://dh.zhadev.my.id/docs
+· ReDoc Documentation: https://dh.zhadev.my.id/redoc
+· Web Documentation: https://dh.zhadev.my.id
 
 ⚠️ Disclaimer
 
@@ -397,10 +398,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 <div align="center">
 
-🐍 Python Version • 🚀 FastAPI • ⚡ Async
-
-Also available in:
-Node.js Version
+    🚀 FastAPI • ⚡ Async
 
 👇 Report Bug • ⭐ Give a Star
 
