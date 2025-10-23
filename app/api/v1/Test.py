@@ -2,11 +2,14 @@ from fastapi import APIRouter, Query
 from app.api.Models.Parser import DonghubParser
 from app.api.Models.ApiResponseModels import BaseResponse
 import json
+from app.api.Health import request_counters
 
 router = APIRouter()
 
 @router.get("/test/home", response_model=BaseResponse)
 async def test_homepage(page: int = Query(1, ge=1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_homepage(page)
         
@@ -34,6 +37,8 @@ async def test_homepage(page: int = Query(1, ge=1)):
 
 @router.get("/test/search", response_model=BaseResponse)
 async def test_search(query: str = Query("a"), page: int = Query(1, ge=1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_search(query, page)
         
@@ -53,6 +58,8 @@ async def test_search(query: str = Query("a"), page: int = Query(1, ge=1)):
 
 @router.get("/test/schedule", response_model=BaseResponse)
 async def test_schedule():
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_schedule()
         
@@ -76,6 +83,8 @@ async def test_schedule():
 
 @router.get("/test/popular", response_model=BaseResponse)
 async def test_popular(page: int = Query(1, ge=1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_popular(page)
         
@@ -94,6 +103,8 @@ async def test_popular(page: int = Query(1, ge=1)):
 
 @router.get("/test/latest", response_model=BaseResponse)
 async def test_latest(page: int = Query(1, ge=1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_latest(page)
         
@@ -112,6 +123,8 @@ async def test_latest(page: int = Query(1, ge=1)):
 
 @router.get("/test/ongoing", response_model=BaseResponse)
 async def test_ongoing(page: int = Query(1, ge=1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_ongoing(page)
         
@@ -130,6 +143,8 @@ async def test_ongoing(page: int = Query(1, ge=1)):
 
 @router.get("/test/completed", response_model=BaseResponse)
 async def test_completed(page: int = Query(1, ge=1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_completed(page)
         
@@ -148,6 +163,8 @@ async def test_completed(page: int = Query(1, ge=1)):
 
 @router.get("/test/genres", response_model=BaseResponse)
 async def test_genres(slug: str = Query("action"), page: int = Query(1, ge=1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_genres(slug, page)
         
@@ -167,7 +184,9 @@ async def test_genres(slug: str = Query("action"), page: int = Query(1, ge=1)):
         }
 
 @router.get("/test/detail", response_model=BaseResponse)
-async def test_detail(slug: str = Query("one-piece")):
+async def test_detail(slug: str = Query("battle-through-the-heavens-season-5")):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_detail(slug)
         
@@ -188,7 +207,9 @@ async def test_detail(slug: str = Query("one-piece")):
         }
 
 @router.get("/test/episodes", response_model=BaseResponse)
-async def test_episodes(slug: str = Query("one-piece")):
+async def test_episodes(slug: str = Query("renegade-immortal")):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_episodes(slug)
         
@@ -206,7 +227,9 @@ async def test_episodes(slug: str = Query("one-piece")):
         }
 
 @router.get("/test/stream", response_model=BaseResponse)
-async def test_stream(slug: str = Query("one-piece-episode-1-subtitle-indonesia")):
+async def test_stream(slug: str = Query("renegade-immortal-episode-100-subtitle-indonesia")):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_stream(slug)
         
@@ -227,7 +250,9 @@ async def test_stream(slug: str = Query("one-piece-episode-1-subtitle-indonesia"
         }
 
 @router.get("/test/stream-embed", response_model=BaseResponse)
-async def test_stream_embed(slug: str = Query("one-piece-episode-1-subtitle-indonesia"), server_id: int = Query(1)):
+async def test_stream_embed(slug: str = Query("renegade-immortal-episode-99-subtitle-indonesia"), server_id: int = Query(1)):
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_stream(slug, server_id)
         
@@ -246,6 +271,8 @@ async def test_stream_embed(slug: str = Query("one-piece-episode-1-subtitle-indo
 
 @router.get("/test/filters", response_model=BaseResponse)
 async def test_filters():
+    request_counters["test"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_filters()
         
