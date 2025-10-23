@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Query
 from app.api.Models.Parser import DonghubParser
 from app.api.Models.ApiResponseModels import BaseResponse, ListResponse
+from app.api.Health import request_counters
 
 router = APIRouter()
 
 @router.get("/latest", response_model=BaseResponse)
 async def get_latest(page: int = Query(1, ge=1)):
+    request_counters["latest"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_latest(page)
         
