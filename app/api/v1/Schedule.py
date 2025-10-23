@@ -1,11 +1,14 @@
 from fastapi import APIRouter
 from app.api.Models.Parser import DonghubParser
 from app.api.Models.ApiResponseModels import BaseResponse, ScheduleResponse
+from app.api.Health import request_counters
 
 router = APIRouter()
 
 @router.get("/schedule", response_model=BaseResponse)
 async def get_schedule():
+    request_counters["schedule"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_schedule()
         
