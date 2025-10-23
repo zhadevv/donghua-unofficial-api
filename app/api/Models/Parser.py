@@ -89,11 +89,15 @@ class DonghubParser:
         response.raise_for_status()
         return BeautifulSoup(response.content, 'html.parser')
     
-    def extract_text(self, element, selector: str) -> str:
-        if element:
+    def extract_text(self, element, selector: str, multiple=False):
+        if not element:
+            return "" if not multiple else []
+        if multiple:
+            selected = element.select(selector)
+            return [sel.get_text(" ", strip=True) for sel in selected]
+        else:
             selected = element.select_one(selector)
-            return selected.get_text(strip=True) if selected else ""
-        return ""
+            return selected.get_text(" ", strip=True) if selected else ""
     
     def extract_attribute(self, element, selector: str, attribute: str) -> str:
         if element:
@@ -429,14 +433,19 @@ class DonghubParser:
         result["alter_title"] = self.extract_text(container, ".alter")
         result["bookmark_count"] = self.extract_text(container, ".bmc")
         
-        synopsis_container = soup.select_one(".bixbox.synp .entry-content")
-        if synopsis_container:
+        synopsis_container = soup.select(".bixbox.synp .entry-content")
+        if synopsis_container and len(synopsis_container) >= 2:
             result["synopsis"] = {
-              "en": synopsis_container[0].get_text(" ", strip=True),
-              "id": synopsis_container[1].get_text(" ", strip=True)
+                "en": synopsis_container[0].get_text(" ", strip=True),
+                "id": synopsis_container[1].get_text(" ", strip=True)
+            }
+        elif synopsis_container:
+            result["synopsis"] = {
+                "en": synopsis_container[0].get_text(" ", strip=True),
+                "id": ""
             }
         else:
-            result["synopsis"] = ""
+            result["synopsis"] = {"en": "", "id": ""}
         
         info_data = {}
         
@@ -626,14 +635,19 @@ class DonghubParser:
             else:
                 series_info["genres"] = []
             
-            stream_synopsis = soup.select_one(".bixbox.synp .entry-content")
-            if stream_synopsis:
+            stream_synopsis = soup.select(".bixbox.synp .entry-content")
+            if stream_synopsis and len(stream_synopsis) >= 2:
                 series_info["synopsis"] = {
-                  "en": stream_synopsis[0].get_text(" ", strip=True),
-                  "id": stream_synopsis[1].get_text(" ", strip=True)
+                    "en": stream_synopsis[0].get_text(" ", strip=True),
+                    "id": stream_synopsis[1].get_text(" ", strip=True)
+                }
+            elif stream_synopsis:
+                series_info["synopsis"] = {
+                    "en": stream_synopsis[0].get_text(" ", strip=True),
+                    "id": ""
                 }
             else:
-                series_info["synopsis"] = ""
+                series_info["synopsis"] = {"en": "", "id": ""}
             
             result["series_info"] = series_info
             
