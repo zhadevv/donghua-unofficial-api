@@ -110,6 +110,34 @@ class DonghubParser:
             selected = element.select(selector)
             return [elem.get_text(strip=True) for elem in selected]
         return []
+        
+    def _extract_video_url(self, embed_code: str) -> str:
+        try:
+            soup = BeautifulSoup(embed_code, 'html.parser')
+            
+            iframe = soup.find('iframe')
+            if iframe and iframe.get('src'):
+                return iframe.get('src')
+            video = soup.find('video')
+            if video and video.get('src'):
+                return video.get('src')
+            source = soup.find('source')
+            if source and source.get('src'):
+                return source.get('src')
+            
+            if 'dailymotion.com' in embed_code:
+                match = re.search(r'src="([^"]+dailymotion[^"]+)"', embed_code)
+                if match:
+                    return match.group(1)
+            if 'ok.ru' in embed_code:
+                match = re.search(r'src="([^"]+ok\.[^"]+)"', embed_code)
+                if match:
+                    return match.group(1)
+            
+            return embed_code
+            
+        except Exception:
+            return embed_code
     
     async def scrape_homepage(self, page: int = 1) -> Dict[str, Any]:
         url = f"{self.base_url}/page/{page}/" if page > 1 else self.base_url
@@ -128,7 +156,7 @@ class DonghubParser:
         if popular_container:
             for item in popular_container.select(".bs .bsx"):
                 result["popular_today"].append({
-                    "title": self.extract_text(item, "tt"),
+                    "title": self.extract_text(item, ".tt"),
                     "slug": self.extract_attribute(item, "a", "href").replace(self.base_url, "").strip("/"),
                     "thumbnail": self.extract_attribute(item, ".limit img", "src"),
                     "current_episode": self.extract_text(item, ".epx"),
@@ -141,7 +169,7 @@ class DonghubParser:
         if latest_container:
             for item in latest_container.select(".bs.styleegg .bsx"):
                 result["latest_releases"].append({
-                    "title": self.extract_text(item, "tt"),
+                    "title": self.extract_text(item, ".tt"),
                     "slug": self.extract_attribute(item, "a", "href").replace(self.base_url, "").strip("/"),
                     "thumbnail": self.extract_attribute(item, ".limit img", "src"),
                     "current_episode": self.extract_text(item, ".eggepisode"),
@@ -161,7 +189,7 @@ class DonghubParser:
                     for item in pane.select(".bs .bsx"):
                         result["recommendation"].append({
                             "genre": genre,
-                            "title": self.extract_text(item, "tt"),
+                            "title": self.extract_text(item, ".tt"),
                             "slug": self.extract_attribute(item, "a", "href").replace(self.base_url, "").strip("/"),
                             "thumbnail": self.extract_attribute(item, ".limit img", "src"),
                             "current_episode": self.extract_text(item, ".epx"),
@@ -436,16 +464,16 @@ class DonghubParser:
         synopsis_container = soup.select(".bixbox.synp .entry-content")
         if synopsis_container and len(synopsis_container) >= 2:
             result["synopsis"] = {
-                "en": synopsis_container[0].get_text(" ", strip=True),
-                "id": synopsis_container[1].get_text(" ", strip=True)
+                "0": synopsis_container[0].get_text(" ", strip=True),
+                "1": synopsis_container[1].get_text(" ", strip=True)
             }
         elif synopsis_container:
             result["synopsis"] = {
-                "en": synopsis_container[0].get_text(" ", strip=True),
-                "id": ""
+                "0": synopsis_container[0].get_text(" ", strip=True),
+                "1": ""
             }
         else:
-            result["synopsis"] = {"en": "", "id": ""}
+            result["synopsis"] = {"0": "", "1": ""}
         
         info_data = {}
         
@@ -478,33 +506,31 @@ class DonghubParser:
             result["genres"] = [a.get_text(strip=True) for a in genres_container.select("a")]
         else:
             result["genres"] = []
-        
+            
         episode_nav = {}
-        first_ep = container.select_one(".inepcx")
+        first_ep = container.select_one(".inepcx:first-child")
         if first_ep:
             episode_nav["first_episode"] = {
-                "number": self.extract_text(first_ep, ".epcur epcurfirst"),
+                "number": self.extract_text(first_ep, ".epcurfirst"),
                 "url": self.extract_attribute(first_ep, "a", "href")
             }
         
-        new_ep = container.select_one(".inepcx")
+        new_ep = container.select_one(".inepcx:last-child")
         if new_ep:
             episode_nav["new_episode"] = {
-                "number": self.extract_text(new_ep, ".epcur epcurlast"),
+                "number": self.extract_text(new_ep, ".epcurlast"),
                 "url": self.extract_attribute(new_ep, "a", "href")
             }
         
         result["episode_nav"] = episode_nav
-        
-        episodes_container = container.select_one("ul")
+        episodes_container = container.select_one(".eplister ul")
         if episodes_container:
             result["episodes"] = []
             for item in episodes_container.select("li"):
                 result["episodes"].append({
-                    "data-index": self.extract_attribute(item, ".data-index"),
                     "number": self.extract_text(item, ".epl-num"),
                     "title": self.extract_text(item, ".epl-title"),
-                    "subtitle": self.extract_text(item, ".status.Sub"),
+                    "subtitle": self.extract_text(item, ".epl-sub .status"),
                     "date": self.extract_text(item, ".epl-date"),
                     "url": self.extract_attribute(item, "a", "href")
                 })
@@ -520,174 +546,180 @@ class DonghubParser:
         return result
     
     async def scrape_stream(self, slug: str, episode: Optional[int] = None, server_id: Optional[int] = None) -> Dict[str, Any]:
-        if episode:
-            if not slug.endswith('-subtitle-indonesia'):
-                slug = f"{slug}-episode-{episode}-subtitle-indonesia"
+        if episode and episode > 0:
+            base_slug = re.sub(r'-episode-\d+-subtitle-indonesia', '', slug)
+            slug = f"{base_slug}-episode-{episode}-subtitle-indonesia"
                 
         if not slug.endswith('/'):
             slug += '/'
             
         url = f"{self.base_url}/{slug}"
         
-        if server_id:
-            soup = await self.get_soup(url)
-            
-            servers_container = soup.select_one("select.mirror")
-            if servers_container:
-                server_options = servers_container.select("option[value!='']")
-                for option in server_options:
-                    data_index = option.get("data-index")
-                    if data_index and int(data_index) == server_id:
-                        embed_data = option.get("value")
-                        if embed_data:
-                            try:
-                                decoded_data = base64.b64decode(embed_data).decode('utf-8')
-                                return {"embed_url": decoded_data}
-                            except:
-                                return {"embed_url": embed_data}
-            
-            return {"embed_url": ""}
-        else:
-            soup = await self.get_soup(url)
-            
-            result = {}
-            
-            result["title"] = self.extract_text(soup, ".entry-title")
-            
-            episode_meta = soup.select_one("meta[itemprop='episodeNumber']")
-            if episode_meta:
-                result["episode_number"] = episode_meta.get("content")
-            else:
-                title = result["title"] or ""
-                episode_match = re.search(r'Episode\s*(\d+)', title, re.IGNORECASE)
-                result["episode_number"] = episode_match.group(1) if episode_match else ""
-            
-            result["thumbnail"] = self.extract_attribute(soup, ".thumb img", "src")
-            
-            current_embed = soup.select_one("#pembed iframe")
-            if current_embed:
-                result["current_embed"] = current_embed.get("src")
-            else:
-                result["current_embed"] = ""
-            
-            servers_container = soup.select_one("select.mirror")
-            if servers_container:
-                result["servers"] = []
-                for option in servers_container.select("option[value!='']"):
-                    result["servers"].append({
-                        "name": option.get_text(strip=True),
-                        "embed_data": option.get("value"),
-                        "data_index": option.get("data-index")
-                    })
-            else:
-                result["servers"] = []
-            
-            navigation = {}
-            prev_ep = soup.select_one(".naveps .nvs a[rel='prev']")
-            if prev_ep:
-                navigation["prev_episode"] = prev_ep.get("href")
-            else:
-                navigation["prev_episode"] = ""
-            
-            next_ep = soup.select_one(".naveps .nvs a[rel='next']")
-            if next_ep:
-                navigation["next_episode"] = next_ep.get("href")
-            else:
-                navigation["next_episode"] = ""
-            
-            all_eps = soup.select_one(".naveps .nvsc a")
-            if all_eps:
-                navigation["all_episodes"] = all_eps.get("href")
-            else:
-                navigation["all_episodes"] = ""
-            
-            result["navigation"] = navigation
-            
-            episode_list_container = soup.select_one("#singlepisode .episodelist ul")
-            if episode_list_container:
-                result["episode_list"] = []
-                for item in episode_list_container.select("li"):
-                    result["episode_list"].append({
-                        "title": self.extract_text(item, ".playinfo h3"),
-                        "episode_number": self.extract_text(item, ".playinfo span"),
-                        "url": self.extract_attribute(item, "a", "href"),
-                        "thumbnail": self.extract_attribute(item, ".thumbnel img", "src")
-                    })
-            else:
-                result["episode_list"] = []
+        try:
+            if server_id and server_id > 0:
+                soup = await self.get_soup(url)
                 
-            series_info = {}
-            series_info["title"] = self.extract_text(soup, ".infolimit h2") or result.get("title", "")
-            
-            info_elements = soup.select(".spe span")
-            for element in info_elements:
-                text = element.get_text(strip=True)
-                if 'Status:' in text:
-                    series_info["status"] = text.replace('Status:', '').strip()
-                elif 'Type:' in text:
-                    series_info["type"] = text.replace('Type:', '').strip()
-                elif 'Episodes:' in text:
-                    series_info["episodes"] = text.replace('Episodes:', '').strip()
-            
-            genres_elements = soup.select(".genxed a")
-            if genres_elements:
-                series_info["genres"] = [genre.get_text(strip=True) for genre in genres_elements]
+                servers_container = soup.select_one("select.mirror")
+                if servers_container:
+                    server_options = servers_container.select("option[value!='']")
+                    for option in server_options:
+                        data_index = option.get("data-index")
+                        if data_index and int(data_index) == server_id:
+                            embed_data = option.get("value")
+                            if embed_data:
+                                try:
+                                    decoded_data = base64.b64decode(embed_data).decode('utf-8')
+                                    return {"embed_url": decoded_data}
+                                except:
+                                    return {"embed_url": embed_data}
+                
+                return {"embed_url": ""}
             else:
-                series_info["genres"] = []
-            
-            stream_synopsis = soup.select(".bixbox.synp .entry-content")
-            if stream_synopsis and len(stream_synopsis) >= 2:
-                series_info["synopsis"] = {
-                    "en": stream_synopsis[0].get_text(" ", strip=True),
-                    "id": stream_synopsis[1].get_text(" ", strip=True)
-                }
-            elif stream_synopsis:
-                series_info["synopsis"] = {
-                    "en": stream_synopsis[0].get_text(" ", strip=True),
-                    "id": ""
-                }
-            else:
-                series_info["synopsis"] = {"en": "", "id": ""}
-            
-            result["series_info"] = series_info
-            
-            return result
+                soup = await self.get_soup(url)
+                
+                result = {}
+                
+                result["title"] = self.extract_text(soup, ".entry-title")
+                
+                episode_meta = soup.select_one("meta[itemprop='episodeNumber']")
+                if episode_meta:
+                    result["episode_number"] = episode_meta.get("content")
+                else:
+                    title = result["title"] or ""
+                    episode_match = re.search(r'Episode\s*(\d+)', title, re.IGNORECASE)
+                    result["episode_number"] = episode_match.group(1) if episode_match else ""
+                
+                result["thumbnail"] = self.extract_attribute(soup, ".thumb img", "src")
+                
+                current_embed = soup.select_one("#pembed iframe")
+                if current_embed:
+                    result["current_embed"] = current_embed.get("src")
+                else:
+                    result["current_embed"] = ""
+                
+                servers_container = soup.select_one("select.mirror")
+                if servers_container:
+                    result["servers"] = []
+                    for option in servers_container.select("option[value!='']"):
+                        result["servers"].append({
+                            "name": option.get_text(strip=True),
+                            "embed_data": option.get("value"),
+                            "data_index": option.get("data-index")
+                        })
+                else:
+                    result["servers"] = []
+                
+                navigation = {}
+                prev_ep = soup.select_one(".naveps .nvs a[rel='prev']")
+                if prev_ep:
+                    navigation["prev_episode"] = prev_ep.get("href")
+                else:
+                    navigation["prev_episode"] = ""
+                
+                next_ep = soup.select_one(".naveps .nvs a[rel='next']")
+                if next_ep:
+                    navigation["next_episode"] = next_ep.get("href")
+                else:
+                    navigation["next_episode"] = ""
+                
+                all_eps = soup.select_one(".naveps .nvsc a")
+                if all_eps:
+                    navigation["all_episodes"] = all_eps.get("href")
+                else:
+                    navigation["all_episodes"] = ""
+                
+                result["navigation"] = navigation
+                
+                episode_list_container = soup.select_one("#singlepisode .episodelist ul")
+                if episode_list_container:
+                    result["episode_list"] = []
+                    for item in episode_list_container.select("li"):
+                        result["episode_list"].append({
+                            "title": self.extract_text(item, ".playinfo h3"),
+                            "episode_number": self.extract_text(item, ".playinfo span"),
+                            "url": self.extract_attribute(item, "a", "href"),
+                            "thumbnail": self.extract_attribute(item, ".thumbnel img", "src")
+                        })
+                else:
+                    result["episode_list"] = []
+                
+                series_info = {}
+                series_info["title"] = self.extract_text(soup, ".infolimit h2") or result.get("title", "")
+                
+                info_elements = soup.select(".spe span")
+                for element in info_elements:
+                    text = element.get_text(strip=True)
+                    if 'Status:' in text:
+                        series_info["status"] = text.replace('Status:', '').strip()
+                    elif 'Type:' in text:
+                        series_info["type"] = text.replace('Type:', '').strip()
+                    elif 'Episodes:' in text:
+                        series_info["episodes"] = text.replace('Episodes:', '').strip()
+                
+                genres_elements = soup.select(".genxed a")
+                if genres_elements:
+                    series_info["genres"] = [genre.get_text(strip=True) for genre in genres_elements]
+                else:
+                    series_info["genres"] = []
+                
+                stream_synopsis = soup.select(".bixbox.synp .entry-content")
+                if stream_synopsis and len(stream_synopsis) >= 2:
+                    series_info["synopsis"] = {
+                        "0": stream_synopsis[0].get_text(" ", strip=True),
+                        "1": stream_synopsis[1].get_text(" ", strip=True)
+                    }
+                elif stream_synopsis:
+                    series_info["synopsis"] = {
+                        "0": stream_synopsis[0].get_text(" ", strip=True),
+                        "1": ""
+                    }
+                else:
+                    series_info["synopsis"] = {"0": "", "1": ""}
+                
+                result["series_info"] = series_info
+                
+                return result
+                
+        except Exception as e:
+            return {"error": f"Failed to scrape stream: {str(e)}"}
     
     async def scrape_episodes(self, slug: str) -> Dict[str, Any]:
-        url = f"{self.base_url}/{slug}/"
-        soup = await self.get_soup(url)
+        detail_data = await self.scrape_detail(slug)
         
         result = {"episodes": []}
         
-        first_ep_element = soup.select_one(".inepcx")
-        new_ep_element = soup.select_one(".inepcx")
-        
-        if first_ep_element and new_ep_element:
-            first_ep_number_text = self.extract_text(first_ep_element, ".epcur epcurfirst")
-            new_ep_number_text = self.extract_text(new_ep_element, ".epcur epcurlast")
+        if "episode_nav" in detail_data:
+            first_ep = detail_data["episode_nav"].get("first_episode", {})
+            new_ep = detail_data["episode_nav"].get("new_episode", {})
             
-            try:
-                first_num = int(''.join(filter(str.isdigit, first_ep_number_text)) or 1)
-                new_num = int(''.join(filter(str.isdigit, new_ep_number_text)) or 1)
+            first_num = 1
+            new_num = 1
+            
+            if first_ep.get("number"):
+                first_match = re.search(r'(\d+)', first_ep.get("number", ""))
+                if first_match:
+                    first_num = int(first_match.group(1))
+            
+            if new_ep.get("number"):
+                new_match = re.search(r'(\d+)', new_ep.get("number", ""))
+                if new_match:
+                    new_num = int(new_match.group(1))
+            
+            base_slug = slug.rstrip('/')
+            
+            for ep_num in range(first_num, new_num + 1):
+                episode_slug = f"{base_slug}-episode-{ep_num}-subtitle-indonesia"
+                episode_url = f"{self.base_url}/{episode_slug}/"
                 
-                base_slug = slug.rstrip('/')
-                
-                for ep_num in range(first_num, new_num + 1):
-                    episode_slug = f"{base_slug}-episode-{ep_num}-subtitle-indonesia"
-                    episode_url = f"{self.base_url}/{episode_slug}/"
-                    
-                    result["episodes"].append({
-                        "episode_number": ep_num,
-                        "slug": episode_slug,
-                        "url": episode_url,
-                        "donghub_url": episode_url
-                    })
-                        
-            except ValueError:
-                pass
+                result["episodes"].append({
+                    "episode_number": ep_num,
+                    "slug": episode_slug,
+                    "url": episode_url,
+                    "donghub_url": episode_url
+                })
         
         return result
-    
+        
     async def scrape_filters(self) -> Dict[str, Any]:
         url = f"{self.base_url}/anime/"
         soup = await self.get_soup(url)
@@ -752,5 +784,82 @@ class DonghubParser:
                         "value": input_elem.get("value"),
                         "label": label.get_text(strip=True)
                     })
+        
+        return result
+        
+    async def scrape_download_links(self, slug: str, episode: Optional[int] = None) -> Dict[str, Any]:
+        result = {"download_links": []}
+        
+        try:
+            if episode and episode > 0:
+                if not slug.endswith('-subtitle-indonesia'):
+                    slug = f"{slug}-episode-{episode}-subtitle-indonesia"
+                
+                if not slug.endswith('/'):
+                    slug += '/'
+                    
+                url = f"{self.base_url}/{slug}"
+                soup = await self.get_soup(url)
+                
+                servers_container = soup.select_one("select.mirror")
+                if servers_container:
+                    server_options = servers_container.select("option[value!='']")
+                    for option in server_options:
+                        data_index = option.get("data-index")
+                        embed_data = option.get("value")
+                        
+                        if embed_data:
+                            try:
+                                decoded_data = base64.b64decode(embed_data).decode('utf-8')
+                                video_url = self._extract_video_url(decoded_data)
+                                
+                                result["download_links"].append({
+                                    "episode": episode,
+                                    "server_name": option.get_text(strip=True),
+                                    "data_index": data_index,
+                                    "embed_data": embed_data,
+                                    "decoded_embed": decoded_data,
+                                    "direct_url": video_url,
+                                    "quality": "HD"
+                                })
+                            except Exception as e:
+                                result["download_links"].append({
+                                    "episode": episode,
+                                    "server_name": option.get_text(strip=True),
+                                    "data_index": data_index,
+                                    "embed_data": embed_data,
+                                    "decoded_embed": "",
+                                    "direct_url": "",
+                                    "quality": "HD",
+                                    "error": str(e)
+                                })
+                
+                default_embed = soup.select_one("#pembed iframe")
+                if default_embed:
+                    embed_src = default_embed.get("src")
+                    if embed_src:
+                        result["download_links"].append({
+                            "episode": episode,
+                            "server_name": "Default Embed",
+                            "data_index": "0",
+                            "embed_data": "",
+                            "decoded_embed": embed_src,
+                            "direct_url": embed_src,
+                            "quality": "HD"
+                        })
+                
+            else:
+                episodes_data = await self.scrape_episodes(slug)
+                
+                if episodes_data.get("episodes"):
+                    for ep_data in episodes_data["episodes"]:
+                        ep_number = ep_data["episode_number"]
+                        ep_slug = ep_data["slug"]
+                        ep_download_links = await self.scrape_download_links(ep_slug, ep_number)
+                        
+                        result["download_links"].extend(ep_download_links.get("download_links", []))
+        
+        except Exception as e:
+            result["error"] = f"Failed to scrape download links: {str(e)}"
         
         return result
