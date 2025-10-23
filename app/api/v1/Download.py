@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query
 from app.api.Models.Parser import DonghubParser
 from app.api.Models.ApiResponseModels import BaseResponse
+from app.api.Health import request_counters
 
 router = APIRouter()
 
@@ -9,6 +10,8 @@ async def get_download_links(
     slug: str, 
     episode: int = Query(None, ge=1)
 ):
+    request_counters["download"] += 1
+    
     async with DonghubParser() as parser:
         data = await parser.scrape_download_links(slug, episode)
         
