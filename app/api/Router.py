@@ -13,7 +13,7 @@ from app.api.v1.Stream import router as stream_router
 from app.api.v1.Download import router as download_router
 from app.api.v1.Filters import router as filters_router
 from app.api.v1.Test import router as test_router
-from app.api.Health import router as health_router
+from app.api.Health import router as status_router
 
 api_router = APIRouter()
 
@@ -31,4 +31,4 @@ api_router.include_router(stream_router, prefix="/v1", tags=["Stream"])
 api_router.include_router(download_router, prefix="/v1", tags=["Download"])
 api_router.include_router(filters_router, prefix="/v1", tags=["Filters"])
 api_router.include_router(test_router, prefix="/v1", tags=["Testing"])
-api_router.include_router(health_router, prefix="", tags=["Health"])
+api_router.include_router(status_router, prefix="/v1", tags=["Status"])
