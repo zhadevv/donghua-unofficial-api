@@ -124,7 +124,7 @@ class DonghubParser:
         if popular_container:
             for item in popular_container.select(".bs .bsx"):
                 result["popular_today"].append({
-                    "title": self.extract_text(item, ".tt"),
+                    "title": self.extract_text(item, "tt"),
                     "slug": self.extract_attribute(item, "a", "href").replace(self.base_url, "").strip("/"),
                     "thumbnail": self.extract_attribute(item, ".limit img", "src"),
                     "current_episode": self.extract_text(item, ".epx"),
@@ -137,7 +137,7 @@ class DonghubParser:
         if latest_container:
             for item in latest_container.select(".bs.styleegg .bsx"):
                 result["latest_releases"].append({
-                    "title": self.extract_text(item, ".tt"),
+                    "title": self.extract_text(item, "tt"),
                     "slug": self.extract_attribute(item, "a", "href").replace(self.base_url, "").strip("/"),
                     "thumbnail": self.extract_attribute(item, ".limit img", "src"),
                     "current_episode": self.extract_text(item, ".eggepisode"),
@@ -157,7 +157,7 @@ class DonghubParser:
                     for item in pane.select(".bs .bsx"):
                         result["recommendation"].append({
                             "genre": genre,
-                            "title": self.extract_text(item, ".tt"),
+                            "title": self.extract_text(item, "tt"),
                             "slug": self.extract_attribute(item, "a", "href").replace(self.base_url, "").strip("/"),
                             "thumbnail": self.extract_attribute(item, ".limit img", "src"),
                             "current_episode": self.extract_text(item, ".epx"),
@@ -431,7 +431,10 @@ class DonghubParser:
         
         synopsis_container = soup.select_one(".bixbox.synp .entry-content")
         if synopsis_container:
-            result["synopsis"] = synopsis_container.get_text(strip=True)
+            result["synopsis"] = {
+              "en": synopsis_container[0].get_text(" ", strip=True),
+              "id": synopsis_container[1].get_text(" ", strip=True)
+            }
         else:
             result["synopsis"] = ""
         
@@ -468,30 +471,31 @@ class DonghubParser:
             result["genres"] = []
         
         episode_nav = {}
-        first_ep = container.select_one(".inepcx:first-child")
+        first_ep = container.select_one(".inepcx")
         if first_ep:
             episode_nav["first_episode"] = {
-                "number": self.extract_text(first_ep, ".epcur.epcurfirst"),
+                "number": self.extract_text(first_ep, ".epcur epcurfirst"),
                 "url": self.extract_attribute(first_ep, "a", "href")
             }
         
-        new_ep = container.select_one(".inepcx:last-child")
+        new_ep = container.select_one(".inepcx")
         if new_ep:
             episode_nav["new_episode"] = {
-                "number": self.extract_text(new_ep, ".epcur.epcurlast"),
+                "number": self.extract_text(new_ep, ".epcur epcurlast"),
                 "url": self.extract_attribute(new_ep, "a", "href")
             }
         
         result["episode_nav"] = episode_nav
         
-        episodes_container = container.select_one(".eplister ul")
+        episodes_container = container.select_one("ul")
         if episodes_container:
             result["episodes"] = []
             for item in episodes_container.select("li"):
                 result["episodes"].append({
+                    "data-index": self.extract_attribute(item, ".data-index"),
                     "number": self.extract_text(item, ".epl-num"),
                     "title": self.extract_text(item, ".epl-title"),
-                    "subtitle": self.extract_text(item, ".epl-sub .status"),
+                    "subtitle": self.extract_text(item, ".status.Sub"),
                     "date": self.extract_text(item, ".epl-date"),
                     "url": self.extract_attribute(item, "a", "href")
                 })
@@ -624,12 +628,12 @@ class DonghubParser:
             
             stream_synopsis = soup.select_one(".bixbox.synp .entry-content")
             if stream_synopsis:
-                series_info["synopsis"] = stream_synopsis.get_text(strip=True)
+                series_info["synopsis"] = {
+                  "en": stream_synopsis[0].get_text(" ", strip=True),
+                  "id": stream_synopsis[1].get_text(" ", strip=True)
+                }
             else:
                 series_info["synopsis"] = ""
-            
-            rating_element = soup.select_one(".rating strong")
-            series_info["rating"] = rating_element.get_text(strip=True) if rating_element else ""
             
             result["series_info"] = series_info
             
@@ -641,12 +645,12 @@ class DonghubParser:
         
         result = {"episodes": []}
         
-        first_ep_element = soup.select_one(".inepcx:first-child")
-        new_ep_element = soup.select_one(".inepcx:last-child")
+        first_ep_element = soup.select_one(".inepcx")
+        new_ep_element = soup.select_one(".inepcx")
         
         if first_ep_element and new_ep_element:
-            first_ep_number_text = self.extract_text(first_ep_element, ".epcurfirst")
-            new_ep_number_text = self.extract_text(new_ep_element, ".epcurlast")
+            first_ep_number_text = self.extract_text(first_ep_element, ".epcur epcurfirst")
+            new_ep_number_text = self.extract_text(new_ep_element, ".epcur epcurlast")
             
             try:
                 first_num = int(''.join(filter(str.isdigit, first_ep_number_text)) or 1)
