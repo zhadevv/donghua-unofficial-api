@@ -2,46 +2,57 @@ from fastapi import APIRouter, Request
 from app.api.Models.ApiResponseModels import BaseResponse
 
 router = APIRouter()
+request_counters = {
+    "home": 0,
+    "search": 0,
+    "schedule": 0,
+    "popular": 0,
+    "latest": 0,
+    "ongoing": 0,
+    "completed": 0,
+    "genres": 0,
+    "detail": 0,
+    "episodes": 0,
+    "stream": 0,
+    "download": 0,
+    "filters": 0,
+    "test": 0,
+    "status": 0
+}
 
-request_count = 0
-
-@router.get("/health", response_model=BaseResponse)
-async def health_check(request: Request):
-    global request_count
-    request_count += 1
+@router.get("/status", response_model=BaseResponse)
+async def get_status(request: Request):
+    global request_counters
+    request_counters["status"] += 1
+    
+    total_requests = sum(request_counters.values())
     
     return {
         "status": 200,
         "success": True,
         "author": "zhadev",
         "data": {
-            "message": "API is healthy",
-            "total_requests": request_count,
-            "status": "operational"
-        }
-    }
-
-@router.get("/stats", response_model=BaseResponse)
-async def get_stats():
-    return {
-        "status": 200,
-        "success": True,
-        "author": "zhadev",
-        "data": {
-            "total_requests": request_count,
-            "endpoints": [
-                "/api/home",
-                "/api/search",
-                "/api/schedule", 
-                "/api/popular",
-                "/api/latest",
-                "/api/ongoing",
-                "/api/completed",
-                "/api/genres/{slug}",
-                "/api/detail/{slug}",
-                "/api/episodes/{slug}",
-                "/api/stream/{slug}",
-                "/api/filters"
-            ]
+            "message": "Donghua Unofficial API Status",
+            "api_status": "operational",
+            "total_requests": total_requests,
+            "endpoint_stats": {
+                "home": request_counters["home"],
+                "search": request_counters["search"],
+                "schedule": request_counters["schedule"],
+                "popular": request_counters["popular"],
+                "latest": request_counters["latest"],
+                "ongoing": request_counters["ongoing"],
+                "completed": request_counters["completed"],
+                "genres": request_counters["genres"],
+                "detail": request_counters["detail"],
+                "episodes": request_counters["episodes"],
+                "stream": request_counters["stream"],
+                "download": request_counters["download"],
+                "filters": request_counters["filters"],
+                "test": request_counters["test"],
+                "status": request_counters["status"]
+            },
+            "uptime": "Running",
+            "version": "1.0.0"
         }
     }
