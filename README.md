@@ -26,6 +26,10 @@ Perfect for developers building:
 - 🔍 Search engines for Chinese animation
 - 🐍 Python-based data analysis tools
 
+## ⚠️ DISCLAIMER
+
+This project was built for learning and education, of course this will violate the policies and regulations of the relevant parties, therefore, Therefore, I as the creator will not be responsible "IF" you create your own donghua streaming website/app, you bear the risk yourself
+
 ## ✨ Features
 
 <div align="center">
